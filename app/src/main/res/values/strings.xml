@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">workWIthFlow</string>
+    <string name="currency_price">$%s</string>
+</resources>
