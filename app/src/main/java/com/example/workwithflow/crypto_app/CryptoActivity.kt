@@ -5,11 +5,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.workwithflow.R
 import com.example.workwithflow.crypto_app.data.CryptoAdapter
 import com.example.workwithflow.crypto_app.data.State
 import com.example.workwithflow.databinding.ActivityCryptoBinding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class CryptoActivity : AppCompatActivity() {
 
@@ -38,31 +43,26 @@ class CryptoActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.state.observe(this) {
-            when (it) {
-                is State.Initial -> {
-                    binding.progressBarLoading.isVisible = false
-                }
-                is State.Loading -> {
-                    binding.progressBarLoading.isVisible = true
-                }
-                is State.Content -> {
-                    binding.progressBarLoading.isVisible = false
-                    adapter.submitList(it.currencyList)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.state.collect{
+                    when (it) {
+                        is State.Initial -> {
+                            binding.progressBarLoading.isVisible = false
+                        }
+                        is State.Loading -> {
+                            binding.progressBarLoading.isVisible = true
+                        }
+                        is State.Content -> {
+                            binding.progressBarLoading.isVisible = false
+                            adapter.submitList(it.currencyList)
+                        }
+                    }
                 }
             }
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.stopLoading()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadData()
-    }
     companion object {
 
         fun newIntent(context: Context) = Intent(context, CryptoActivity::class.java)
