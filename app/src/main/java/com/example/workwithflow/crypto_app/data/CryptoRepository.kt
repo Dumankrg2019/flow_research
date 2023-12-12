@@ -1,5 +1,6 @@
 package com.example.workwithflow.crypto_app.data
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -11,7 +12,9 @@ object CryptoRepository {
     private val currencyNames = listOf("BTC", "ETH", "USDT", "BNB", "USDC")
     private val currencyList = mutableListOf<Currency>()
 
+
      fun getCurrencyList(): Flow<List<Currency>> = flow{
+         emit(currencyList.toList())
         while (true) {
             delay(3000)
             generateCurrencyList()
